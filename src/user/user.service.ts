@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { AuthDto } from '../auth/auth.dto';
 import { Role } from '../common/enums/role.enum';
 import { User, UserDocument } from './user.schema';
 
@@ -8,7 +9,7 @@ import { User, UserDocument } from './user.schema';
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async create(data: User) {
+  async create(data: AuthDto) {
     const created = new this.userModel(data);
     return created.save();
   }
@@ -18,8 +19,12 @@ export class UserService {
   }
 
   async getRolesByName(name: string): Promise<Role[]> {
-    const user = await this.userModel.findOne({ name }).select('roles').lean().exec();
+    const { roles } = await this.userModel.findOne({ name }).select('roles').lean().exec();
 
-    return user.roles;
+    return roles;
+  }
+
+  async findBySlug(slug: string) {
+    return this.userModel.findOne({ slug }).lean().exec();
   }
 }
