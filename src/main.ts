@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as rateLimit from 'express-rate-limit';
@@ -18,6 +19,8 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   app.use(helmet());
+
+  app.useGlobalPipes(new ValidationPipe());
 
   app.enableCors({
     origin: process.env.HOST
