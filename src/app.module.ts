@@ -7,21 +7,12 @@ import { JwtGuard } from './auth/guards/jwt-auth.guard';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { RolesGuard } from './common/guards/role.guard';
 import { DatabaseModule } from './database/database.module';
-import { HintModule } from './hint/hint.module';
 import { TargetModule } from './target/target.module';
 import { UserModule } from './user/user.module';
 import { validate } from './util/env.validation';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({ validate }),
-    DatabaseModule,
-    UserModule,
-    AuthModule,
-    AttemptModule,
-    HintModule,
-    TargetModule
-  ],
+  imports: [ConfigModule.forRoot({ validate }), DatabaseModule, UserModule, AuthModule, AttemptModule, TargetModule],
   providers: [
     JwtStrategy,
     {

@@ -4,7 +4,6 @@ import { Document, Schema as MongooseSchema } from 'mongoose';
 import { generateSlug } from 'random-word-slugs';
 import { AttemptDocument, attemptSchema } from '../attempt/attempt.schema';
 import { Unit } from '../common/enums/unit.enum';
-import { HintDocument, hintSchema } from '../hint/hint.schema';
 import { UserDocument } from '../user/user.schema';
 
 export type TargetDocument = Target & Document;
@@ -41,8 +40,8 @@ export class Target {
   @Prop({ type: Number, default: 0, min: -1000, max: 1000 })
   score: number;
 
-  @Prop([{ type: hintSchema, default: [] }])
-  hints: mongoose.Types.DocumentArray<HintDocument>;
+  @Prop({ type: String, default: '', minlength: 0, maxlength: 512 })
+  hint: string;
 
   @Prop([{ type: attemptSchema, default: [] }])
   attempts: mongoose.Types.DocumentArray<AttemptDocument>;

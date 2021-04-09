@@ -18,6 +18,11 @@ export class CreateTargetDto {
   @Length(1, 5000)
   radius: number;
 
+  @ApiProperty()
+  @IsString()
+  @Length(1, 512)
+  hint: string;
+
   @ApiProperty({ enum: Unit, default: Unit.Meter.toString() })
   radiusType: Unit;
 
@@ -40,6 +45,11 @@ export class UpdateTargetDto {
   @IsNumberString()
   @Length(1, 5000)
   radius: number;
+
+  @ApiProperty()
+  @IsString()
+  @Length(1, 512)
+  hint: string;
 
   @ApiProperty({ enum: Unit, default: Unit.Meter.toString() })
   radiusType: Unit;
