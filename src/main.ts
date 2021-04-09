@@ -7,10 +7,10 @@ import { XMLInterceptor } from './common/interceptors/xml.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
   const config = new DocumentBuilder()
     .setTitle('API Documentation')
     .setDescription('Documentation for this API.')
+    .addBearerAuth({ in: 'header', type: 'http' })
     .setVersion('1.0')
     .build();
 
