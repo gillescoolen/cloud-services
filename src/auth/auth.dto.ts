@@ -1,17 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsString } from 'class-validator';
-import { Role } from '../common/enums/role.enum';
+import { IsString } from 'class-validator';
 
 export class AuthDto {
   @IsString()
-  @ApiProperty()
+  @ApiProperty({ required: true, minLength: 3, maxLength: 32 })
   name: string;
 
   @IsString()
-  @ApiProperty()
+  @ApiProperty({ required: true, minLength: 3, maxLength: 128 })
   password: string;
-
-  @IsArray()
-  @ApiProperty()
-  roles: Role[];
 }

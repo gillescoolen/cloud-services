@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+import { Role } from '../common/enums/role.enum';
+import { UserDocument } from '../user/user.schema';
 import { UserService } from '../user/user.service';
 import { AuthDto } from './auth.dto';
 
@@ -17,5 +19,9 @@ export class AuthService {
     const user = await this.usersService.findByName(data.name);
     const match = await bcrypt.compare(data.password, user.password);
     return match ? this.jwtService.sign({ username: data.name }) : null;
+  }
+
+  public hasPermission(user: UserDocument, authenticatedUser: UserDocument): boolean {
+    return authenticatedUser._id.equals(user._id) || authenticatedUser.roles?.includes(Role.Admin);
   }
 }
