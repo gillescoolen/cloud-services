@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   app:
-    container_name: app
+    container_name: cloud-app
     build:
       context: .
       target: development
@@ -19,7 +19,7 @@ services:
       - database
   database:
     image: mongo
-    container_name: database
+    container_name: cloud-db
     environment:
       MONGO_INITDB_DATABASE: nest
       MONGO_INITDB_ROOT_USERNAME: root
