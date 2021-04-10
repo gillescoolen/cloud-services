@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as rateLimit from 'express-rate-limit';
 import * as helmet from 'helmet';
 import { AppModule } from './app.module';
+import { MongoExceptionFilter } from './common/filters/mongo-exception.filter';
 import { XMLInterceptor } from './common/interceptors/xml.interceptor';
 
 async function bootstrap() {
@@ -19,6 +20,8 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   app.use(helmet());
+
+  app.useGlobalFilters(new MongoExceptionFilter());
 
   app.useGlobalPipes(
     new ValidationPipe({
