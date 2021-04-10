@@ -27,7 +27,7 @@ import { AttemptService } from './attempt.service';
 @ApiHeaders([
   {
     name: 'api-return-format',
-    enum: ['text/xml', 'application/json'],
+    enum: ['application/json', 'text/xml'],
     required: true
   }
 ])
