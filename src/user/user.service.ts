@@ -18,13 +18,21 @@ export class UserService {
     return this.userModel.findOne({ name }).select('password user').lean().exec();
   }
 
-  async getRolesByName(name: string): Promise<Role[]> {
-    const { roles } = await this.userModel.findOne({ name }).select('roles').lean().exec();
+  async findWithRoles(name: string): Promise<{ roles: Role[]; slug: string }> {
+    const { roles, slug } = await this.userModel.findOne({ name }).select('roles slug').lean().exec();
 
-    return roles;
+    return { roles, slug };
   }
 
   async findBySlug(slug: string) {
     return this.userModel.findOne({ slug }).lean().exec();
+  }
+
+  async makeAdmin(slug: string) {
+    const user = await this.findBySlug(slug);
+
+    user.roles = [Role.Admin, Role.User];
+
+    await this.userModel.updateOne({ slug }, user);
   }
 }

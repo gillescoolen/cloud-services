@@ -8,8 +8,8 @@ export type UserDocument = User & Document;
 
 @Schema()
 export class User {
-  @Prop({ required: true, unique: true })
-  slug?: string;
+  @Prop({ required: false, unique: true })
+  slug: string;
 
   @Prop({ required: true, unique: true, trim: true, minlength: 3, maxlength: 32 })
   name: string;
@@ -24,7 +24,7 @@ export class User {
 export const userSchema = SchemaFactory.createForClass(User);
 
 userSchema.pre('save', async function (this: UserDocument, next) {
-  this.slug = generateSlug(4);
+  this.slug = this.slug || generateSlug(4);
   this.password = await bcrypt.hash(this.password, 16);
   next();
 });
