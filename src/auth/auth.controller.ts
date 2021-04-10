@@ -1,9 +1,16 @@
 import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiHeaders, ApiTags } from '@nestjs/swagger';
 import { Public } from '../common/decorators/public.decorator';
 import { AuthDto } from './auth.dto';
 import { AuthService } from './auth.service';
 
+@ApiHeaders([
+  {
+    name: 'api-return-format',
+    enum: ['text/xml', 'application/json'],
+    required: true
+  }
+])
 @Controller()
 @ApiTags('Authentication')
 export class AuthController {

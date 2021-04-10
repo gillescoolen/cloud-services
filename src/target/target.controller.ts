@@ -1,16 +1,16 @@
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  NotFoundException,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UnauthorizedException,
-  UploadedFile,
-  UseInterceptors
+    Body,
+    Controller,
+    Delete,
+    Get,
+    NotFoundException,
+    Param,
+    Patch,
+    Post,
+    Query,
+    UnauthorizedException,
+    UploadedFile,
+    UseInterceptors
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiHeaders, ApiQuery, ApiTags } from '@nestjs/swagger';
@@ -24,7 +24,7 @@ import { TargetService } from './target.service';
 
 @ApiHeaders([
   {
-    name: 'x-api-format',
+    name: 'api-return-format',
     enum: ['text/xml', 'application/json'],
     required: true
   }

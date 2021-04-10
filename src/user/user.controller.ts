@@ -4,7 +4,7 @@ import { UserService } from './user.service';
 
 @ApiHeaders([
   {
-    name: 'x-api-format',
+    name: 'api-return-format',
     enum: ['text/xml', 'application/json'],
     required: true
   }
