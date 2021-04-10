@@ -102,11 +102,9 @@ export class AttemptController {
   @Get(':attemptSlug/user')
   public async findCreatorBySlug(@Param('attemptSlug') attemptSlug: string, @Param('targetSlug') targetSlug: string) {
     const target = await this.targetService.findBySlug(targetSlug);
-
     if (target === null) throw new NotFoundException();
 
     const attempt = await this.attemptService.findBySlug(target, attemptSlug);
-
     if (attempt === null) throw new NotFoundException();
 
     return await this.userService.findBySlug(attempt.user.slug);
