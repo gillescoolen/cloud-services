@@ -7,7 +7,7 @@ export type AttemptDocument = Attempt & Document;
 
 @Schema()
 export class Attempt {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: false, unique: true })
   slug: string;
 
   @Prop({ required: true, unique: true })
@@ -25,7 +25,7 @@ export const attemptSchema = SchemaFactory.createForClass(Attempt);
 attemptSchema.pre('save', async function (this: AttemptDocument, next) {
   if (this.score > 100 || this.score < 1) throw new Error('Score cannot be greater than 100 or less than 1');
 
-  this.slug = generateSlug(4);
+  this.slug = this.slug || generateSlug(4);
 
   next();
 });

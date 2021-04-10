@@ -53,7 +53,7 @@ export class AttemptController {
     type: Number
   })
   @Get()
-  public async all(@Query() params: PaginationDto, @Param('targetSlug') targetSlug: string) {
+  public async findAll(@Query() params: PaginationDto, @Param('targetSlug') targetSlug: string) {
     const target = await this.targetService.findBySlug(targetSlug);
 
     return new PaginationResponse({

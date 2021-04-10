@@ -1,4 +1,5 @@
 import { BadRequestException, Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -15,6 +16,7 @@ import { AttemptService } from './attempt.service';
   imports: [
     AuthModule,
     UserModule,
+    ConfigModule,
     MongooseModule.forFeature([
       {
         name: Attempt.name,
