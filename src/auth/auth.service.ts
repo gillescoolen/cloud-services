@@ -12,16 +12,16 @@ export class AuthService {
 
   async register(data: AuthDto): Promise<string> {
     const user = await this.usersService.create(data);
-    return this.jwtService.sign({ username: user.name });
+    return this.jwtService.sign({ name: user.name });
   }
 
   async login(data: AuthDto): Promise<string | null> {
     const user = await this.usersService.findByName(data.name);
     const match = await bcrypt.compare(data.password, user.password);
-    return match ? this.jwtService.sign({ username: data.name }) : null;
+    return match ? this.jwtService.sign({ name: data.name }) : null;
   }
 
   public hasPermission(user: UserDocument, authenticatedUser: UserDocument): boolean {
-    return authenticatedUser._id.equals(user._id) || authenticatedUser.roles?.includes(Role.Admin);
+    return authenticatedUser.slug === user.slug || authenticatedUser.roles?.includes(Role.Admin);
   }
 }

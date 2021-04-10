@@ -9,8 +9,8 @@ import { XMLInterceptor } from './common/interceptors/xml.interceptor';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = new DocumentBuilder()
-    .setTitle('API Documentation')
-    .setDescription('Documentation for this API.')
+    .setTitle('Cloud Services')
+    .setDescription('Documentation for the Cloud Services API.')
     .addBearerAuth({ in: 'header', type: 'http' })
     .setVersion('1.0')
     .build();
@@ -20,7 +20,12 @@ async function bootstrap() {
 
   app.use(helmet());
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: false,
+      transform: true
+    })
+  );
 
   app.enableCors({
     origin: process.env.HOST
