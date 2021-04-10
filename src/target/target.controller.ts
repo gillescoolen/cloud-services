@@ -15,8 +15,10 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiHeaders, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../auth/auth.service';
+import { Roles } from '../common/decorators/roles.decorator';
 import { User } from '../common/decorators/user.decorator';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { Role } from '../common/enums/role.enum';
 import { PaginationResponse } from '../common/responses/pagination.response';
 import { UserDocument } from '../user/user.schema';
 import { CreateTargetDto, UpdateTargetDto } from './target.dto';
@@ -104,18 +106,19 @@ export class TargetController {
 
     if (currentTarget === null) throw new NotFoundException();
 
-    if (!this.authService.hasPermission(currentTarget.owner, user))
+    if (!this.authService.hasPermission(currentTarget.user, user))
       throw new UnauthorizedException("You don't have access to this target.");
 
     await this.targetService.update(targetSlug, target);
   }
 
+  @Roles(Role.Admin)
   @Delete(':targetSlug')
   public async delete(@User() user: UserDocument, @Param('targetSlug') targetSlug: string) {
     const currentTarget = await this.targetService.findBySlug(targetSlug);
 
     if (currentTarget === null) throw new NotFoundException();
-    if (!this.authService.hasPermission(currentTarget.owner, user))
+    if (!this.authService.hasPermission(currentTarget.user, user))
       throw new UnauthorizedException("You don't have access to this target.");
 
     await currentTarget.delete();

@@ -15,8 +15,10 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiHeaders, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../auth/auth.service';
+import { Roles } from '../common/decorators/roles.decorator';
 import { User } from '../common/decorators/user.decorator';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { Role } from '../common/enums/role.enum';
 import { PaginationResponse } from '../common/responses/pagination.response';
 import { TargetService } from '../target/target.service';
 import { UserDocument } from '../user/user.schema';
@@ -75,13 +77,13 @@ export class AttemptController {
     const target = await this.targetService.findBySlug(targetSlug);
 
     if (target === null) throw new NotFoundException();
-    if (this.authService.hasPermission(target.owner, user))
-      throw new UnauthorizedException('You cannot submit attempts for your own target');
+    if (this.authService.hasPermission(target.user, user))
+      throw new UnauthorizedException("You can't submit attempts for your own targets!");
 
     const hashOne = await this.attemptService.hashImage(target.image);
     const hashTwo = await this.attemptService.hashImage(file.filename);
 
-    if (hashOne === hashTwo) throw new BadRequestException('You cannot submit the same image');
+    if (hashOne === hashTwo) throw new BadRequestException("You can't submit the same image twice.");
 
     return await this.attemptService.create(target, file.filename, user);
   }
@@ -97,19 +99,20 @@ export class AttemptController {
     return attempt;
   }
 
-  @Get(':attemptSlug/owner')
-  public async findOwnerBySlug(@Param('attemptSlug') attemptSlug: string, @Param('targetSlug') targetSlug: string) {
+  @Get(':attemptSlug/user')
+  public async findCreatorBySlug(@Param('attemptSlug') attemptSlug: string, @Param('targetSlug') targetSlug: string) {
     const target = await this.targetService.findBySlug(targetSlug);
 
     if (target === null) throw new NotFoundException();
 
-    const attempt = this.attemptService.findBySlug(target, attemptSlug);
+    const attempt = await this.attemptService.findBySlug(target, attemptSlug);
 
     if (attempt === null) throw new NotFoundException();
 
-    return await this.userService.findBySlug(attempt.owner.slug);
+    return await this.userService.findBySlug(attempt.user.slug);
   }
 
+  @Roles(Role.Admin)
   @Delete(':hintSlug')
   public async delete(
     @User() user: UserDocument,
@@ -120,7 +123,7 @@ export class AttemptController {
     const attempt = await this.attemptService.findBySlug(target, hintSlug);
 
     if (target === null || attempt === null) throw new NotFoundException();
-    if (!this.authService.hasPermission(target.owner, user))
+    if (!this.authService.hasPermission(target.user, user))
       throw new UnauthorizedException("You don't have access to this attempt.");
 
     await this.attemptService.delete(target, hintSlug);

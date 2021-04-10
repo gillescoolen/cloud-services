@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { LeanDocument, Model } from 'mongoose';
 import { PaginationDto } from '../common/dtos/pagination.dto';
@@ -15,7 +15,7 @@ export class TargetService {
   ) {}
 
   private populationOptions = {
-    path: 'owner',
+    path: 'user',
     select: { name: 1, slug: 1, _id: 0 },
     model: User
   };
@@ -53,13 +53,17 @@ export class TargetService {
    *
    * @param target The target data.
    * @param image The uploaded image name.
-   * @param user The user that created the request.
+   * @param authUser The user that created the request.
    */
-  public async create(target: CreateTargetDto, image: string, user: UserDocument): Promise<void> {
-    const owner = await this.userService.findByName(user.name);
-    const created = new this.targetModel({ ...target, owner, image });
+  public async create(target: CreateTargetDto, image: string, authUser: UserDocument): Promise<void> {
+    try {
+      const user = await this.userService.findByName(authUser.name);
+      const created = new this.targetModel({ ...target, user, image });
 
-    await created.save();
+      await created.save();
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   /**

@@ -17,13 +17,13 @@ export class Attempt {
   score: number;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'UserDocument', required: true })
-  owner: UserDocument;
+  user: UserDocument;
 }
 
 export const attemptSchema = SchemaFactory.createForClass(Attempt);
 
 attemptSchema.pre('save', async function (this: AttemptDocument, next) {
-  if (this.score > 100 || this.score < 1) throw new Error('Score cannot be greater than 100 or less than 1');
+  if (this.score > 100 || this.score < 1) throw new Error('Score must sit between 1 and 100.');
 
   this.slug = this.slug || generateSlug(4);
 

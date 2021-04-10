@@ -26,7 +26,7 @@ export class Target {
   unit: Unit;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'UserDocument', required: true })
-  owner: UserDocument;
+  user: UserDocument;
 
   @Prop({ required: true, unique: true })
   image: string;
