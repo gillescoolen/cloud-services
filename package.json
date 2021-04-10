@@ -34,6 +34,7 @@
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
+    "deepai": "^1.0.17",
     "express-rate-limit": "^5.2.3",
     "helmet": "^4.4.1",
     "jsontoxml": "^1.0.1",
