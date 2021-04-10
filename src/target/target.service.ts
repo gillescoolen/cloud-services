@@ -1,14 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { LeanDocument, Model } from 'mongoose';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { User, UserDocument } from '../user/user.schema';
+import { UserService } from '../user/user.service';
 import { CreateTargetDto, UpdateTargetDto } from './target.dto';
 import { Target, TargetDocument } from './target.schema';
 
 @Injectable()
 export class TargetService {
-  constructor(@InjectModel(Target.name) private targetModel: Model<TargetDocument>) {}
+  constructor(
+    @InjectModel(Target.name) private targetModel: Model<TargetDocument>,
+    private readonly userService: UserService
+  ) {}
 
   private populationOptions = {
     path: 'owner',
@@ -16,59 +20,105 @@ export class TargetService {
     model: User
   };
 
-  public async create(target: CreateTargetDto, image: string, owner: UserDocument) {
-    const created = new this.targetModel({ ...target, owner, image });
-    return await created.save();
-  }
-
-  public async all(params: PaginationDto) {
-    return await this.targetModel
+  /**
+   * Returns all targets within the specified
+   * parameters.
+   *
+   * @param pagination the pagination wrapper.
+   * @returns the found targets.
+   */
+  public async findAll(pagination: PaginationDto): Promise<LeanDocument<TargetDocument[]>> {
+    return this.targetModel
       .find()
       .populate(this.populationOptions)
-      .limit(params.amount)
-      .skip(params.amount * (params.page - 1))
+      .limit(pagination.amount)
+      .skip(pagination.amount * (pagination.page - 1))
       .lean()
       .exec();
   }
 
-  public findBySlug(slug: string) {
+  /**
+   * Returns a single target identified
+   * by its slug.
+   *
+   * @param slug the target slug.
+   * @returns the found target.
+   */
+  public findBySlug(slug: string): Promise<TargetDocument> {
     return this.targetModel.findOne({ slug }).populate(this.populationOptions).exec();
   }
 
-  public async update(slug: string, target: UpdateTargetDto, image: string | undefined = undefined) {
-    let data = {
-      ...target
-    };
+  /**
+   * Creates a target.
+   *
+   * @param target The target data.
+   * @param image The uploaded image name.
+   * @param user The user that created the request.
+   */
+  public async create(target: CreateTargetDto, image: string, user: UserDocument): Promise<void> {
+    const owner = await this.userService.findByName(user.name);
+    const created = new this.targetModel({ ...target, owner, image });
 
-    if (image) data = { ...data, image };
-
-    return await this.targetModel.findOneAndUpdate({ slug }, data).populate(this.populationOptions).exec();
+    await created.save();
   }
 
-  public async like(targetSlug: string, userSlug: string) {
+  /**
+   * Updates a target.
+   *
+   * @param slug the targe slug.
+   * @param target the updated data.
+   */
+  public async update(slug: string, data: UpdateTargetDto): Promise<void> {
+    await this.targetModel.findOneAndUpdate({ slug }, data).populate(this.populationOptions).exec();
+  }
+
+  /**
+   * Permanently deletes a target.
+   *
+   * @param slug the target slug.
+   */
+  public async delete(slug: string): Promise<TargetDocument> {
+    return this.targetModel.findOneAndDelete({ slug }).exec();
+  }
+
+  /**
+   * Likes a target.
+   *
+   * @param targetSlug the target slug.
+   * @param userSlug the user slug.
+   * @returns
+   */
+  public async like(targetSlug: string, userSlug: string): Promise<TargetDocument> {
     const target = await this.findBySlug(targetSlug);
 
     this.disassociate(target, userSlug);
     target.likes.push(userSlug);
-    target.score++;
 
-    return await target.save();
+    return target.save();
   }
-  public async dislike(targetSlug: string, userSlug: string) {
+
+  /**
+   * Dislikes a target.
+   *
+   * @param targetSlug the target slug.
+   * @param userSlug the user slug.
+   * @returns
+   */
+  public async dislike(targetSlug: string, userSlug: string): Promise<TargetDocument> {
     const target = await this.findBySlug(targetSlug);
 
     this.disassociate(target, userSlug);
     target.dislikes.push(userSlug);
-    target.score--;
 
-    return await target.save();
+    return target.save();
   }
 
-  public async delete(slug: string) {
-    return await this.targetModel.findOneAndDelete({ slug }).exec();
-  }
-
-  private disassociate(target: TargetDocument, userSlug: string) {
+  /**
+   * Removes a user from the target liked or disliked list.
+   * @param target the target.
+   * @param userSlug the user slug.
+   */
+  private disassociate(target: TargetDocument, userSlug: string): void {
     target.dislikes = target.dislikes.filter((l) => l != userSlug);
     target.likes = target.likes.filter((l) => l != userSlug);
   }

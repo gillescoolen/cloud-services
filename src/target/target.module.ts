@@ -5,6 +5,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { generateSlug } from 'random-word-slugs';
 import { AuthModule } from '../auth/auth.module';
+import { UserModule } from '../user/user.module';
 import { TargetController } from './target.controller';
 import { Target, targetSchema } from './target.schema';
 import { TargetService } from './target.service';
@@ -12,6 +13,7 @@ import { TargetService } from './target.service';
 @Module({
   imports: [
     AuthModule,
+    UserModule,
     MongooseModule.forFeature([{ name: Target.name, schema: targetSchema }]),
     MulterModule.register({
       dest: './public',

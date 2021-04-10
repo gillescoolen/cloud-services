@@ -46,8 +46,8 @@ export class TargetController {
     type: Number
   })
   @Get()
-  public async all(@Query() params: PaginationDto) {
-    const targets = await this.targetService.all(params);
+  public async findAll(@Query() params: PaginationDto) {
+    const targets = await this.targetService.findAll(params);
 
     return new PaginationResponse({
       page: params.page,
@@ -67,18 +67,18 @@ export class TargetController {
     await this.targetService.create(target, file.filename, user);
   }
 
-  @Post(':id/like')
-  public async like(@Param('id') id: string, @User() user: UserDocument) {
-    const target = await this.targetService.findBySlug(id);
+  @Post(':slug/like')
+  public async like(@Param('slug') slug: string, @User() user: UserDocument) {
+    const target = await this.targetService.findBySlug(slug);
 
     if (target === null) throw new NotFoundException();
 
     return await this.targetService.like(target.slug, user.slug);
   }
 
-  @Post(':id/dislike')
-  public async dislike(@Param('id') id: string, @User() user: UserDocument) {
-    const target = await this.targetService.findBySlug(id);
+  @Post(':slug/dislike')
+  public async dislike(@Param('slug') slug: string, @User() user: UserDocument) {
+    const target = await this.targetService.findBySlug(slug);
 
     if (target === null) throw new NotFoundException();
 
@@ -95,22 +95,19 @@ export class TargetController {
   }
 
   @Patch(':targetSlug')
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('image'))
   public async update(
     @Param('targetSlug') targetSlug: string,
     @Body() target: UpdateTargetDto,
-    @UploadedFile() file: Express.Multer.File,
     @User() user: UserDocument
   ) {
     const currentTarget = await this.targetService.findBySlug(targetSlug);
 
     if (currentTarget === null) throw new NotFoundException();
 
-    if (!this.authService.hasPermission(currentTarget.owner._id, user))
+    if (!this.authService.hasPermission(currentTarget.owner, user))
       throw new UnauthorizedException("You don't have access to this target.");
 
-    await this.targetService.update(targetSlug, target, file.filename);
+    await this.targetService.update(targetSlug, target);
   }
 
   @Delete(':targetSlug')
@@ -118,7 +115,7 @@ export class TargetController {
     const currentTarget = await this.targetService.findBySlug(targetSlug);
 
     if (currentTarget === null) throw new NotFoundException();
-    if (!this.authService.hasPermission(currentTarget.owner._id, user))
+    if (!this.authService.hasPermission(currentTarget.owner, user))
       throw new UnauthorizedException("You don't have access to this target.");
 
     await currentTarget.delete();

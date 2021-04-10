@@ -24,7 +24,7 @@ export class CreateTargetDto {
   hint: string;
 
   @ApiProperty({ enum: Unit, default: Unit.Meter.toString() })
-  radiusType: Unit;
+  unit: Unit;
 
   @ApiProperty({ type: 'file' })
   image?: any;
@@ -52,8 +52,5 @@ export class UpdateTargetDto {
   hint: string;
 
   @ApiProperty({ enum: Unit, default: Unit.Meter.toString() })
-  radiusType: Unit;
-
-  @ApiProperty({ type: 'file' })
-  image?: any;
+  unit: Unit;
 }

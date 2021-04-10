@@ -10,7 +10,7 @@ export type TargetDocument = Target & Document;
 
 @Schema()
 export class Target {
-  @Prop({ required: true })
+  @Prop({ required: false })
   slug: string;
 
   @Prop({ required: true, unique: false, trim: true, minlength: 3, maxlength: 64 })
@@ -37,7 +37,7 @@ export class Target {
   @Prop([{ type: String, default: [] }])
   dislikes: string[];
 
-  @Prop({ type: Number, default: 0, min: -1000, max: 1000 })
+  @Prop({ type: Number, default: 0 })
   score: number;
 
   @Prop({ type: String, default: '', minlength: 0, maxlength: 512 })
@@ -50,7 +50,8 @@ export class Target {
 export const targetSchema = SchemaFactory.createForClass(Target);
 
 targetSchema.pre('save', async function (this: TargetDocument, next) {
-  this.slug = generateSlug(4);
+  this.slug = this.slug || generateSlug(4);
+  this.score = this.likes.length = this.dislikes.length;
 
   next();
 });
