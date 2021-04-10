@@ -51,7 +51,7 @@ export const targetSchema = SchemaFactory.createForClass(Target);
 
 targetSchema.pre('save', async function (this: TargetDocument, next) {
   this.slug = this.slug || generateSlug(4);
-  this.score = this.likes.length = this.dislikes.length;
+  this.score = this.likes.length - this.dislikes.length;
 
   next();
 });
