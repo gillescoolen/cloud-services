@@ -33,7 +33,7 @@ import { AttemptService } from './attempt.service';
     required: true
   }
 ])
-@Controller('/target/:targetSlug/attempts')
+@Controller('/targets/:targetSlug/attempts')
 @ApiTags('Attempts')
 @ApiBearerAuth()
 export class AttemptController {
@@ -108,6 +108,21 @@ export class AttemptController {
     if (attempt === null) throw new NotFoundException();
 
     return await this.userService.findBySlug(attempt.user.slug);
+  }
+
+  @Get(':attemptSlug/user/has/:badge')
+  public async checkIfUserHasSlug(
+    @Param('attemptSlug') attemptSlug: string,
+    @Param('targetSlug') targetSlug: string,
+    @Param('badgeSlug') badgeSlug: string
+  ) {
+    const target = await this.targetService.findBySlug(targetSlug);
+    if (target === null) throw new NotFoundException();
+
+    const attempt = await this.attemptService.findBySlug(target, attemptSlug);
+    if (attempt === null) throw new NotFoundException();
+
+    return await this.userService.findBySlug(attempt.user.badges.find((badge) => badge === badgeSlug));
   }
 
   @Roles(Role.Admin)

@@ -5,8 +5,8 @@ import {
   Get,
   NotFoundException,
   Param,
-  Patch,
   Post,
+  Put,
   Query,
   UnauthorizedException,
   UploadedFile,
@@ -31,7 +31,7 @@ import { TargetService } from './target.service';
     required: true
   }
 ])
-@Controller('/target')
+@Controller('/targets')
 @ApiTags('Targets')
 @ApiBearerAuth()
 export class TargetController {
@@ -96,7 +96,7 @@ export class TargetController {
     return target;
   }
 
-  @Patch(':targetSlug')
+  @Put(':targetSlug')
   public async update(
     @Param('targetSlug') targetSlug: string,
     @Body() target: UpdateTargetDto,

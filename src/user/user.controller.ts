@@ -1,5 +1,6 @@
-import { Controller, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Param, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiHeaders, ApiTags } from '@nestjs/swagger';
+import { UpdateUserDto } from './user.dto';
 import { UserService } from './user.service';
 
 @ApiHeaders([
@@ -9,14 +10,14 @@ import { UserService } from './user.service';
     required: true
   }
 ])
-@Controller()
+@Controller('/users')
 @ApiTags('Users')
 @ApiBearerAuth()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Patch('/admin/:slug')
-  public async update(@Param('slug') slug: string) {
-    await this.userService.makeAdmin(slug);
+  @Put('/:slug')
+  public async update(@Param('slug') slug: string, @Body() user: UpdateUserDto) {
+    await this.userService.update(slug, user);
   }
 }
