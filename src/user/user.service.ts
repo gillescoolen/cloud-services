@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AuthDto } from '../auth/auth.dto';
 import { Role } from '../common/enums/role.enum';
+import { UpdateUserDto } from './user.dto';
 import { User, UserDocument } from './user.schema';
 
 @Injectable()
@@ -53,15 +54,12 @@ export class UserService {
   }
 
   /**
-   * Makes a user an admin.
+   * Updates a user.
    *
-   * @param slug the user's slug.
+   * @param slug the user slug.
+   * @param user the user data.
    */
-  async makeAdmin(slug: string) {
-    const user = await this.findBySlug(slug);
-
-    user.roles = [Role.Admin, Role.User];
-
+  async update(slug: string, user: UpdateUserDto) {
     await this.userModel.updateOne({ slug }, user);
   }
 }

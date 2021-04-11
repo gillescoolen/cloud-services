@@ -19,6 +19,9 @@ export class User {
 
   @Prop({ select: true, default: [Role.User] })
   roles: Role[];
+
+  @Prop({ select: true, default: [] })
+  badges: string[];
 }
 
 export const userSchema = SchemaFactory.createForClass(User);
@@ -26,10 +29,5 @@ export const userSchema = SchemaFactory.createForClass(User);
 userSchema.pre('save', async function (this: UserDocument, next) {
   this.slug = this.slug || generateSlug(4);
   this.password = await bcrypt.hash(this.password, 16);
-  next();
-});
-
-userSchema.pre('updateOne', async function (this: UserDocument, next) {
-  if (this.password) this.password = await bcrypt.hash(this.password, 16);
   next();
 });
