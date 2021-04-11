@@ -18,7 +18,7 @@ export class AttemptService {
 
   public async create(target: TargetDocument, image: string, authUser: UserDocument) {
     const score = await this.compare(target.image, image);
-    const user = await this.userService.findByName(authUser.name);
+    const user = await this.userService.findBySlug(authUser.slug);
 
     target.attempts.push({ image, score, user });
 

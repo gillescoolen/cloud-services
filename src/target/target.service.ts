@@ -1,18 +1,14 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { LeanDocument, Model } from 'mongoose';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { User, UserDocument } from '../user/user.schema';
-import { UserService } from '../user/user.service';
 import { CreateTargetDto, UpdateTargetDto } from './target.dto';
 import { Target, TargetDocument } from './target.schema';
 
 @Injectable()
 export class TargetService {
-  constructor(
-    @InjectModel(Target.name) private targetModel: Model<TargetDocument>,
-    private readonly userService: UserService
-  ) {}
+  constructor(@InjectModel(Target.name) private targetModel: Model<TargetDocument>) {}
 
   private populationOptions = {
     path: 'user',
@@ -55,15 +51,10 @@ export class TargetService {
    * @param image The uploaded image name.
    * @param authUser The user that created the request.
    */
-  public async create(target: CreateTargetDto, image: string, authUser: UserDocument): Promise<void> {
-    try {
-      const user = await this.userService.findByName(authUser.name);
-      const created = new this.targetModel({ ...target, user, image });
+  public async create(target: CreateTargetDto, image: string, user: UserDocument): Promise<TargetDocument> {
+    const created = new this.targetModel({ ...target, user, image });
 
-      await created.save();
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
+    return created.save();
   }
 
   /**

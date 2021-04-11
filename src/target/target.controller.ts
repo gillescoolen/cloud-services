@@ -21,6 +21,7 @@ import { PaginationDto } from '../common/dtos/pagination.dto';
 import { Role } from '../common/enums/role.enum';
 import { PaginationResponse } from '../common/responses/pagination.response';
 import { UserDocument } from '../user/user.schema';
+import { UserService } from '../user/user.service';
 import { CreateTargetDto, UpdateTargetDto } from './target.dto';
 import { TargetService } from './target.service';
 
@@ -35,7 +36,11 @@ import { TargetService } from './target.service';
 @ApiTags('Targets')
 @ApiBearerAuth()
 export class TargetController {
-  constructor(private readonly targetService: TargetService, private readonly authService: AuthService) {}
+  constructor(
+    private readonly targetService: TargetService,
+    private readonly authService: AuthService,
+    private readonly userService: UserService
+  ) {}
 
   @ApiQuery({
     name: 'page',
@@ -63,9 +68,11 @@ export class TargetController {
   @UseInterceptors(FileInterceptor('image'))
   public async create(
     @Body() target: CreateTargetDto,
-    @User() user: UserDocument,
+    @User() authUser: UserDocument,
     @UploadedFile() file: Express.Multer.File
   ) {
+    const user = await this.userService.findBySlug(authUser.slug);
+
     await this.targetService.create(target, file.filename, user);
   }
 

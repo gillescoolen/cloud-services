@@ -38,8 +38,8 @@ export class UserService {
    * @param slug the user's slug
    * @returns the found user.
    */
-  async findBySlug(slug: string) {
-    return this.userModel.findOne({ slug }).lean().exec();
+  async findBySlug(slug: string): Promise<UserDocument> {
+    return this.userModel.findOne({ slug }).exec();
   }
 
   /**
