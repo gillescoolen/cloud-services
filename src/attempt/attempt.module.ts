@@ -25,9 +25,9 @@ import { AttemptService } from './attempt.service';
     ]),
     TargetModule,
     MulterModule.register({
-      dest: './public',
+      dest: './images',
       storage: diskStorage({
-        destination: './public',
+        destination: './images',
         filename: async (req, file, callback) => {
           callback(null, `${generateSlug(6)}${extname(file.originalname)}`);
         }

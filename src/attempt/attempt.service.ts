@@ -70,6 +70,6 @@ export class AttemptService {
   }
 
   private getImagePath(image: string) {
-    return path.join(__dirname, '../..', 'public', image);
+    return path.join(__dirname, '../..', 'images', image);
   }
 }
