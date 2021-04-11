@@ -12,18 +12,6 @@ export class ConnectionService {
   private logger: Logger = new Logger(ConnectionService.name);
   connections: Connection[] = [];
 
-  getConnectedUsersByTarget(target: TargetDocument) {
-    const connection = this.getConnectionByTarget(target);
-
-    if (connection == undefined) return null;
-
-    return connection.users;
-  }
-
-  findUserInConnections(user: string) {
-    return this.connections.filter((t) => t.users.includes(user));
-  }
-
   connectUserToTarget(user: Socket, target: TargetDocument): Connection {
     const foundConnections = this.findUserInConnections(user.id);
 
@@ -38,6 +26,10 @@ export class ConnectionService {
     } else {
       return this.addToArray(user, foundConnection, target);
     }
+  }
+
+  findUserInConnections(user: string) {
+    return this.connections.filter((t) => t.users.includes(user));
   }
 
   private addToArray(user: Socket, connection: Connection, target?: TargetDocument): Connection {
@@ -70,9 +62,5 @@ export class ConnectionService {
     if (connection != undefined) connection.target = target;
 
     return connection;
-  }
-
-  getConnections() {
-    return this.connections;
   }
 }

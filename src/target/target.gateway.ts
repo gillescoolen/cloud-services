@@ -42,14 +42,13 @@ export class TargetGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket
   ): Promise<WsResponse<ErrorReturn | Connection>> {
     const foundTarget = await this.targetService.findBySlug(targetSlug);
-    if (foundTarget == null) {
-      return this.logTargetError('joinedRoom', targetSlug);
-    }
+    if (foundTarget == null) return this.logTargetError('joinedRoom', targetSlug);
+
     const connectedConnection = this.connectionService.connectUserToTarget(client, foundTarget);
 
     client.to(connectedConnection.target.slug).emit('updateRoom');
 
-    this.logger.log(`Client: ${client.id} joined Room: ${connectedConnection.target.slug}`);
+    this.logger.log(`Client: ${client.id} joined room: ${connectedConnection.target.slug}`);
 
     return { event: 'joinedRoom', data: connectedConnection };
   }
@@ -99,6 +98,11 @@ export class TargetGateway implements OnGatewayConnection, OnGatewayDisconnect {
       event: 'leftRoom',
       data: `Left room: ${targetSlug}`
     };
+  }
+
+  @SubscribeMessage('message')
+  handleMessage(@MessageBody() message: string, @ConnectedSocket() client: Socket): void {
+    this.server.emit('message', message);
   }
 
   /**
