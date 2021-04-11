@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -80,12 +79,9 @@ export class AttemptController {
     if (this.authService.hasPermission(target.user, user))
       throw new UnauthorizedException("You can't submit attempts for your own targets!");
 
-    const hashOne = await this.attemptService.hashImage(target.image);
-    const hashTwo = await this.attemptService.hashImage(file.filename);
+    const created = await this.attemptService.create(target, file.filename, user);
 
-    if (hashOne === hashTwo) throw new BadRequestException("You can't submit the same image twice.");
-
-    return await this.attemptService.create(target, file.filename, user);
+    return created;
   }
 
   @Get(':attemptSlug')
@@ -107,7 +103,7 @@ export class AttemptController {
     const attempt = await this.attemptService.findBySlug(target, attemptSlug);
     if (attempt === null) throw new NotFoundException();
 
-    return await this.userService.findBySlug(attempt.user.slug);
+    return await this.userService.findById(attempt.user._id);
   }
 
   @Get(':attemptSlug/user/has/:badge')
@@ -122,23 +118,26 @@ export class AttemptController {
     const attempt = await this.attemptService.findBySlug(target, attemptSlug);
     if (attempt === null) throw new NotFoundException();
 
-    return await this.userService.findBySlug(attempt.user.badges.find((badge) => badge === badgeSlug));
+    const user = await this.userService.findById(attempt.user._id);
+    if (user === null) throw new NotFoundException();
+
+    return user.badges.includes(badgeSlug);
   }
 
   @Roles(Role.Admin)
-  @Delete(':hintSlug')
+  @Delete(':attemptSlug')
   public async delete(
     @User() user: UserDocument,
     @Param('targetSlug') targetSlug: string,
-    @Param('hintSlug') hintSlug: string
+    @Param('attemptSlug') attemptSlug: string
   ) {
     const target = await this.targetService.findBySlug(targetSlug);
-    const attempt = await this.attemptService.findBySlug(target, hintSlug);
+    const attempt = await this.attemptService.findBySlug(target, attemptSlug);
 
     if (target === null || attempt === null) throw new NotFoundException();
     if (!this.authService.hasPermission(target.user, user))
       throw new UnauthorizedException("You don't have access to this attempt.");
 
-    await this.attemptService.delete(target, hintSlug);
+    await this.attemptService.delete(target, attemptSlug);
   }
 }

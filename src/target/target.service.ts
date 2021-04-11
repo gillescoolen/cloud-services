@@ -110,6 +110,7 @@ export class TargetService {
 
   /**
    * Removes a user from the target liked or disliked list.
+   *
    * @param target the target.
    * @param userSlug the user slug.
    */

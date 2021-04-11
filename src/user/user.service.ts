@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { LeanDocument, Model } from 'mongoose';
 import { AuthDto } from '../auth/auth.dto';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 import { Role } from '../common/enums/role.enum';
 import { UpdateUserDto } from './user.dto';
 import { User, UserDocument } from './user.schema';
@@ -10,6 +11,15 @@ import { User, UserDocument } from './user.schema';
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
+  public async findAll(pagination: PaginationDto): Promise<LeanDocument<UserDocument[]>> {
+    return this.userModel
+      .find()
+      .limit(pagination.amount)
+      .skip(pagination.amount * (pagination.page - 1))
+      .lean()
+      .exec();
+  }
+
   /**
    * Returns a user with a certain name.
    *
@@ -17,7 +27,11 @@ export class UserService {
    * @returns the found user.
    */
   findByName(name: string): Promise<User> {
-    return this.userModel.findOne({ name }).select('password user').lean().exec();
+    return this.userModel.findOne({ name }).select('password').lean().exec();
+  }
+
+  findById(id: string): Promise<UserDocument> {
+    return this.userModel.findOne({ _id: id }).select('name roles badges slug').exec();
   }
 
   /**
@@ -60,6 +74,14 @@ export class UserService {
    * @param user the user data.
    */
   async update(slug: string, user: UpdateUserDto) {
+    await this.userModel.updateOne({ slug }, user);
+  }
+
+  async makeAdmin(slug: string) {
+    const user = await this.findBySlug(slug);
+
+    user.roles = [Role.Admin, Role.User];
+
     await this.userModel.updateOne({ slug }, user);
   }
 }

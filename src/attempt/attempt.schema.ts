@@ -23,8 +23,6 @@ export class Attempt {
 export const attemptSchema = SchemaFactory.createForClass(Attempt);
 
 attemptSchema.pre('save', async function (this: AttemptDocument, next) {
-  if (this.score > 100 || this.score < 1) throw new Error('Score must sit between 1 and 100.');
-
   this.slug = this.slug || generateSlug(4);
 
   next();

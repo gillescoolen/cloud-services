@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { Role } from '../common/enums/role.enum';
@@ -16,9 +16,13 @@ export class AuthService {
   }
 
   async login(data: AuthDto): Promise<string | null> {
-    const user = await this.usersService.findByName(data.name);
-    const match = await bcrypt.compare(data.password, user.password);
-    return match ? this.jwtService.sign({ name: data.name }) : null;
+    try {
+      const user = await this.usersService.findByName(data.name);
+      const match = await bcrypt.compare(data.password, user.password);
+      return match ? this.jwtService.sign({ name: data.name }) : null;
+    } catch (error) {
+      throw new UnauthorizedException('User not found.');
+    }
   }
 
   public hasPermission(user: UserDocument, authenticatedUser: UserDocument): boolean {

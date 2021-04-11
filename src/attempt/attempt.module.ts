@@ -16,6 +16,7 @@ import { AttemptService } from './attempt.service';
   imports: [
     AuthModule,
     UserModule,
+    TargetModule,
     ConfigModule,
     MongooseModule.forFeature([
       {
@@ -23,7 +24,6 @@ import { AttemptService } from './attempt.service';
         schema: attemptSchema
       }
     ]),
-    TargetModule,
     MulterModule.register({
       dest: './images',
       storage: diskStorage({
@@ -41,7 +41,6 @@ import { AttemptService } from './attempt.service';
     })
   ],
   providers: [AttemptService],
-  controllers: [AttemptController],
-  exports: [AttemptService]
+  controllers: [AttemptController]
 })
 export class AttemptModule {}

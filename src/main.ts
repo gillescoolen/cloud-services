@@ -9,6 +9,7 @@ import { XMLInterceptor } from './common/interceptors/xml.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
   const config = new DocumentBuilder()
     .setTitle('Cloud Services')
     .setDescription('Documentation for the Cloud Services API.')
@@ -25,7 +26,6 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: false,
       transform: true
     })
   );

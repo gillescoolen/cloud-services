@@ -1,16 +1,21 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as crypto from 'crypto';
 import * as deepai from 'deepai';
 import * as fs from 'fs';
 import * as path from 'path';
 import { TargetDocument } from '../target/target.schema';
-import { UserDocument } from '../user/user.schema';
+import { User, UserDocument } from '../user/user.schema';
 import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AttemptService {
   constructor(private readonly configService: ConfigService, private readonly userService: UserService) {}
+
+  private populationOptions = {
+    path: 'user',
+    select: { name: 1, slug: 1, _id: 0 },
+    model: User
+  };
 
   public async findBySlug(target: TargetDocument, slug: string) {
     return target.attempts.find((attempt) => attempt.slug === slug);
@@ -24,19 +29,11 @@ export class AttemptService {
 
     return target.save();
   }
+
   public async delete(target: TargetDocument, slug: string) {
     const attempt = await this.findBySlug(target, slug);
     await attempt.remove();
     return target.save();
-  }
-
-  public hashImage(image: string) {
-    return new Promise((resolve) => {
-      const hash = crypto.createHash('sha1');
-      fs.createReadStream(this.getImagePath(image))
-        .on('data', (data) => hash.update(data))
-        .on('end', () => resolve(hash.digest('hex')));
-    });
   }
 
   /**
@@ -56,11 +53,9 @@ export class AttemptService {
         image2: fs.createReadStream(this.getImagePath(attemptImage))
       });
 
-      const distance = response.output.distance;
+      const distance = 100 - response.output.distance;
 
-      const result = Math.floor(100 - (distance / 40) * 100);
-
-      return result;
+      return distance;
     } catch (error) {
       throw new ServiceUnavailableException(
         error,
