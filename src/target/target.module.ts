@@ -5,8 +5,10 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { generateSlug } from 'random-word-slugs';
 import { AuthModule } from '../auth/auth.module';
+import { ConnectionModule } from '../connection/connection.module';
 import { UserModule } from '../user/user.module';
 import { TargetController } from './target.controller';
+import { TargetGateway } from './target.gateway';
 import { Target, targetSchema } from './target.schema';
 import { TargetService } from './target.service';
 
@@ -14,11 +16,12 @@ import { TargetService } from './target.service';
   imports: [
     AuthModule,
     UserModule,
+    ConnectionModule,
     MongooseModule.forFeature([{ name: Target.name, schema: targetSchema }]),
     MulterModule.register({
-      dest: './public',
+      dest: './images',
       storage: diskStorage({
-        destination: './public',
+        destination: './images',
         filename: async (req, file, callback) => {
           callback(null, `${generateSlug(6)}${extname(file.originalname)}`);
         }
@@ -31,7 +34,7 @@ import { TargetService } from './target.service';
       }
     })
   ],
-  providers: [TargetService],
+  providers: [TargetService, TargetGateway],
   controllers: [TargetController],
   exports: [TargetService]
 })
